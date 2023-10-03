@@ -1,134 +1,139 @@
 <template>
   <div class="main">
-    <router-link :to="`/books/create`">Book Create</router-link>
+    <div class="hero bg-gray-200 flex justify-center mb-24">
+      <div class="container flex flex-col lg:flex-row lg:justify-center py-10">
+        <div class="mt-10 mx-5 lg:mx-0">
+          <h1 class="lg:w-3/4 w-full mb-4 text-4xl font-bold">
+            Book Recommendation site build with GraphQL
+          </h1>
+          <p class="lg:w-3/4 mb-6 leading-normal">
+            Built with Laravel (lighthouse GraphQL), Vue.js (vue-apollo) and Tailwind CSS
+          </p>
+          <div class="flex items-center">
+            <a href="#" class="bg-purple-600 text-white rounded px-4 py-4 mr-4 hover:bg-purple-600">
+              View Books
+            </a>
 
-    <ApolloQuery :query="queryCategories">
-      <template v-slot="{ result: { error, data }, isLoading }">
-        <div v-if="isLoading" class="loading apollo">Loading...</div>
-
-        <div v-else-if="error" class="error apollo">An error occurred</div>
-
-        <div v-else-if="data" class="result apollo">
-          <a href="#" class="link-margin" @click.prevent="selectCategory({ id: 'all' })">All</a>
-          <a href="#" class="link-margin" @click.prevent="selectCategory({ id: 'featured' })">
-            Featured
-          </a>
-          <a
-            href="#"
-            v-for="category in data.categories"
-            :key="category.id"
-            class="link-margin"
-            @click.prevent="selectCategory({ id: category.id })"
-          >
-            {{ category.id }} {{ category.name }}
-          </a>
+            <a
+              href="#"
+              class="border border-solid border-purple-600 text-purple-600 rounded px-4 py-4 mr-4 hover:bg-purple-600 hover:text-white"
+            >
+              View Screencasts
+            </a>
+          </div>
         </div>
-
-        <div v-else class="no-result apollo">No result :</div>
-      </template>
-    </ApolloQuery>
-
-    <div v-if="selectedCategory === 'all'">
-      <ApolloQuery :query="queryToLoadBook">
-        <template v-slot="{ result: { error, data }, isLoading }">
-          <div v-if="isLoading" class="loading apollo">Loading...</div>
-
-          <div v-else-if="error" class="error apollo">An error occurred</div>
-
-          <div v-else-if="data" class="result apollo">
-            <div v-for="book in data.books" :key="book.id">
-              <router-link :to="`/books/${book.id}`" class="link-margin">
-                {{ book.id }} | {{ book.title }}
-              </router-link>
-
-              <div>
-                {{ book.author }}
-              </div>
-
-              <div>
-                <img :src="book.image" alt="" />
-              </div>
-            </div>
-          </div>
-
-          <div v-else class="no-result apollo">No result :</div>
-        </template>
-      </ApolloQuery>
+        <div class="mt-10 lg:mt-0 flex lg:justify-normal justify-center">
+          <img src="../assets/hero.svg" alt="hero" />
+        </div>
+      </div>
     </div>
 
-    <div v-else-if="selectedCategory === 'featured'">
-      <ApolloQuery :query="queryToLoadBook" :variables="{ featured: true }">
-        <template v-slot="{ result: { error, data }, isLoading }">
-          <div v-if="isLoading" class="loading apollo">Loading...</div>
+    <div class="flex justify-center">
+      <div class="container">
+        <div class="flex flex-wrap -mx-4">
+          <div class="w-full lg:w-1/4 px-4">
+            <ApolloQuery :query="queryCategories">
+              <template v-slot="{ result: { error, data }, isLoading }">
+                <div v-if="isLoading" class="loading apollo">Loading...</div>
 
-          <div v-else-if="error" class="error apollo">An error occurred {{ error }}</div>
+                <div v-else-if="error" class="error apollo">An error occurred</div>
 
-          <div v-else-if="data" class="result apollo">
-            <div v-for="book in data.booksByFeatured" :key="book.id">
-              <router-link :to="`/books/${book.id}`" class="link-margin">
-                {{ book.id }} | {{ book.title }}
-              </router-link>
+                <ul v-else-if="data" class="list-reset text-lg">
+                  <li class="mb-6">
+                    <a
+                      href="#"
+                      class="hover:text-purple-600"
+                      @click.prevent="selectCategory({ id: 'all' })"
+                    >
+                      All
+                    </a>
+                  </li>
+                  <li class="mb-6">
+                    <a
+                      href="#"
+                      class="hover:text-purple-600"
+                      @click.prevent="selectCategory({ id: 'featured' })"
+                    >
+                      Featured
+                    </a>
+                  </li>
+                  <li v-for="category in data.categories" :key="category.id" class="mb-6">
+                    <a
+                      href="#"
+                      class="hover:text-purple-600"
+                      @click.prevent="selectCategory({ id: category.id })"
+                    >
+                      {{ category.name }}
+                    </a>
+                  </li>
 
-              <div>
-                {{ book.author }}
-              </div>
+                  <li class="mb-6">
+                    <router-link :to="`/books/create`" class="hover:text-purple-600">
+                      Add a book
+                    </router-link>
+                  </li>
+                </ul>
 
-              <div>
-                <img :src="book.image" alt="" />
-              </div>
-            </div>
+                <div v-else class="no-result apollo">No result :</div>
+              </template>
+            </ApolloQuery>
           </div>
 
-          <div v-else class="no-result apollo">No result :</div>
-        </template>
-      </ApolloQuery>
-    </div>
+          <div class="w-full lg:w-3/4 px-4">
+            <ApolloQuery v-if="selectedCategory === 'all'" :query="queryToLoadBook">
+              <template v-slot="{ result: { error, data }, isLoading }">
+                <div v-if="isLoading" class="loading apollo">Loading...</div>
 
-    <div v-else>
-      <ApolloQuery :query="queryToLoadBook" :variables="{ id: selectedCategory }">
-        <template v-slot="{ result: { error, data }, isLoading }">
-          <div v-if="isLoading" class="loading apollo">Loading...</div>
+                <div v-else-if="error" class="error apollo">An error occurred</div>
 
-          <div v-else-if="error" class="error apollo">An error occurred</div>
+                <div v-else-if="data" class="grid grid-cols-2 gap-2 lg:grid-cols-3 lg:gap-3">
+                  <BookItem
+                    v-for="book in data.books"
+                    :key="book.id"
+                    :book="book"
+                    class="px-4 mb-12"
+                  />
+                </div>
 
-          <div v-else-if="data" class="result apollo">
-            <div v-for="book in data.category?.books" :key="book.id">
-              <router-link :to="`/books/${book.id}`" class="link-margin">
-                {{ book.id }} | {{ book.title }}
-              </router-link>
+                <div v-else class="no-result apollo">No result :</div>
+              </template>
+            </ApolloQuery>
 
-              <div>
-                {{ book.author }}
-              </div>
+            <ApolloQuery
+              v-else-if="selectedCategory === 'featured'"
+              :query="queryToLoadBook"
+              :variables="{ featured: true }"
+            >
+              <template v-slot="{ result: { error, data }, isLoading }">
+                <div v-if="isLoading" class="loading apollo">Loading...</div>
 
-              <div>
-                <img :src="book.image" alt="" />
-              </div>
-            </div>
+                <div v-else-if="error" class="error apollo">An error occurred {{ error }}</div>
+
+                <div v-else-if="data" class="grid grid-cols-2 gap-2 lg:grid-cols-3 lg:gap-3">
+                  <BookItem v-for="book in data.booksByFeatured" :key="book.id" :book="book" />
+                </div>
+
+                <div v-else class="no-result apollo">No result :</div>
+              </template>
+            </ApolloQuery>
+
+            <ApolloQuery v-else :query="queryToLoadBook" :variables="{ id: selectedCategory }">
+              <template v-slot="{ result: { error, data }, isLoading }">
+                <div v-if="isLoading" class="loading apollo">Loading...</div>
+
+                <div v-else-if="error" class="error apollo">An error occurred</div>
+
+                <div v-else-if="data" class="grid grid-cols-2 gap-2 lg:grid-cols-3 lg:gap-3">
+                  <BookItem v-for="book in data.category?.books" :key="book.id" :book="book" />
+                </div>
+
+                <div v-else class="no-result apollo">No result :</div>
+              </template>
+            </ApolloQuery>
           </div>
-
-          <div v-else class="no-result apollo">No result :</div>
-        </template>
-      </ApolloQuery>
+        </div>
+      </div>
     </div>
-
-    <!-- <div>
-      <a
-        href="#"
-        v-for="category in categoriesResult?.categories"
-        :key="category.id"
-        class="link-margin"
-        @click="selectCategory({ id: category.id })"
-      >
-        {{ category.id }} {{ category.name }}
-      </a>
-    </div> -->
-
-    <!-- <div>
-      <a href="#" v-for="book in booksResult?.books" :key="book.id" class="">
-        {{ book.id }} {{ book.title }}
-      </a>
-    </div> -->
   </div>
 </template>
 
@@ -140,11 +145,7 @@ import { queryCategory } from '@/graphql/queries/Category.js'
 import { queryBooks } from '@/graphql/queries/Books.js'
 import { queryBooksByFeatured } from '@/graphql/queries/BooksByFeatured.js'
 
-// const categoriesResponse = useQuery(queryCategories, null)
-// const categoriesResult = categoriesResponse.result
-
-// const booksResponse = useQuery(queryBooks, null)
-// const booksResult = booksResponse.result
+import BookItem from '@/components/BookItem.vue'
 
 const selectedCategory = ref('all')
 const queryToLoadBook = ref(queryBooks)
@@ -161,8 +162,4 @@ const selectCategory = ({ id }) => {
 }
 </script>
 
-<style>
-.link-margin {
-  margin-right: 24px;
-}
-</style>
+<style></style>
