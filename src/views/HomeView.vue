@@ -145,6 +145,10 @@ import { queryCategory } from '@/graphql/queries/Category.js'
 import { queryBooks } from '@/graphql/queries/Books.js'
 import { queryBooksByFeatured } from '@/graphql/queries/BooksByFeatured.js'
 
+import { useQuery } from '@vue/apollo-composable'
+import { queryMe } from '@/graphql/queries/Me.js'
+useQuery(queryMe)
+
 import BookItem from '@/components/BookItem.vue'
 
 const selectedCategory = ref('all')
